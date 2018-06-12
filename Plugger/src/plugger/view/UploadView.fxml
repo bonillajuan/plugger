@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="uploadFileView" prefHeight="540.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="plugger.view.UploadViewController">
+   <children>
+      <SplitPane dividerPositions="0.3, 0.7" prefHeight="540.0" prefWidth="1300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <items>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" text="Trascina o cerca il file da caricare" textAlignment="CENTER">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <JFXButton fx:id="searchFileButton" alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#filePicker" prefHeight="80.0" prefWidth="80.0" text=" " textAlignment="CENTER">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="PLUS" size="50" />
+                     </graphic>
+                  </JFXButton>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="540.0">
+               <children>
+                  <VBox fx:id="uploadImageView" alignment="CENTER" prefHeight="270.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Label fx:id="uploadImageLabel" alignment="CENTER" contentDisplay="CENTER" text="Trascina o cerca l'immagine da caricare" textAlignment="CENTER">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Label>
+                        <JFXButton fx:id="searchImageButton" alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#imagePicker" prefHeight="80.0" prefWidth="80.0" text=" " textAlignment="CENTER">
+                           <graphic>
+                              <FontAwesomeIconView glyphName="PLUS" size="40" />
+                           </graphic>
+                        </JFXButton>
+                     </children>
+                  </VBox>
+                  <Separator prefWidth="200.0" />
+                  <AnchorPane prefHeight="270.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <TableView fx:id="uploadTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <columns>
+                            <TableColumn fx:id="titoloCol" prefWidth="75.0" text="Titolo" />
+                            <TableColumn fx:id="artistaCol" prefWidth="75.0" text="Artista" />
+                              <TableColumn fx:id="albumCol" prefWidth="75.0" text="Album" />
+                              <TableColumn fx:id="transferCol" prefWidth="75.0" text="Transfered" />
+                              <TableColumn fx:id="statusCol" maxWidth="3000.0" prefWidth="75.0" text="Status" />
+                          </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER">
+               <children>
+                  <AnchorPane fx:id="holderUploadFileDetails" prefHeight="450.0" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </AnchorPane>
+                  <Separator prefHeight="5.0" />
+                  <HBox alignment="CENTER" VBox.vgrow="NEVER">
+                     <children>
+                        <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="80.0" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <children>
+                              <JFXButton text="Annulla" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                              </JFXButton>
+                           </children>
+                        </AnchorPane>
+                        <Separator orientation="VERTICAL" HBox.hgrow="ALWAYS" />
+                        <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="80.0" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <children>
+                              <JFXButton fx:id="uploadButton" alignment="CENTER" contentDisplay="CENTER" onAction="#uploadFile" text="Salva" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                              </JFXButton>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

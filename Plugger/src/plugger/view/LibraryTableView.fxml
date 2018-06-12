@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="plugger.view.LibraryTableViewController">
+   <children>
+      <TableView fx:id="libraryTable" fixedCellSize="0.0" prefHeight="400.0" prefWidth="377.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columns>
+          <TableColumn fx:id="titoloCol" prefWidth="75.0" text="Titolo" />
+          <TableColumn fx:id="artistaCol" prefWidth="75.0" text="Artista" />
+            <TableColumn fx:id="albumCol" prefWidth="75.0" text="Album" />
+            <TableColumn fx:id="durationCol" prefWidth="75.0" text="Duration" />
+            <TableColumn fx:id="pathFileCol" prefWidth="75.0" text="File Path" />
+            <TableColumn fx:id="pathCoverCol" prefWidth="75.0" text="Cover Path" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+   </children>
+</AnchorPane>
