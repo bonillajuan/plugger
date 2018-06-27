@@ -1,19 +1,20 @@
 package plugger.view;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
+
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -37,7 +38,7 @@ public class MainViewController {
     @FXML public JFXButton uploadViewButton;
     @FXML public JFXButton libraryViewButton;
 
-    /** MediaPlayer instances. */
+    /** MediaPlayer instances. **/
     @FXML public Button playButton;
     @FXML public Button previousButton;
     @FXML public Button nextButton;
@@ -49,6 +50,9 @@ public class MainViewController {
 	@FXML public Label playTime;
 	@FXML public Label durationTime;
 	@FXML public TextField searchField;
+	@FXML public Label usernameLabel;
+	@FXML public MenuItem logoutItemMenu;
+	@FXML public JFXButton refreshButton;
 
 	public Media musicFile;
 	public MediaPlayer mediaPlayer;
@@ -60,7 +64,6 @@ public class MainViewController {
 	public Duration duration;
 	public Playlist playlist;
 	public Brano currentBrano;
-	public ObservableList<Brano> listaBrani = FXCollections.observableArrayList();
 
     /**
      * Replaces the vista displayed in the vista holder with a new vista.
@@ -83,13 +86,15 @@ public class MainViewController {
 
     @FXML
     public void initialize(){
+
+    	usernameLabel.setText(Context.getInstance().getClientThread().getUsername());
     	this.musicFile = null;
     	this.mediaPlayer = null;
 
-    	listaBrani.addListener(new ListChangeListener<Brano>() {
+    	Context.getInstance().getListaBraniClient().addListener(new ListChangeListener<Brano>() {
             @Override
             public void onChanged(Change<? extends Brano> c) {
-                playlist = new Playlist(listaBrani);
+                playlist = new Playlist(Context.getInstance().getListaBraniClient());
                 Context.getInstance().setPlaylist(playlist);
             }
         });
@@ -99,7 +104,7 @@ public class MainViewController {
     public void skipTrack(){
     	Context.getInstance().getPlaylist().skipTrack();
 
-        setMediaPlayer(Context.getInstance().getPlaylist().getCurrentSong());
+    	Context.getInstance().getClientThread().selectBrano(Context.getInstance().getPlaylist().getCurrentSong());
     }
 
     public void previousTrack(){
@@ -115,13 +120,15 @@ public class MainViewController {
 
             if (event.getClickCount() == 2) {
             	Context.getInstance().getPlaylist().previousTrack();
-                setMediaPlayer(Context.getInstance().getPlaylist().getCurrentSong());
+            	Context.getInstance().getClientThread().selectBrano(Context.getInstance().getPlaylist().getCurrentSong());
             }
         });
     }
 
     public void setVista(Node node) {
+    	holderView.getChildren().clear();
     	holderView.getChildren().setAll(node);
+    	//System.out.println("HOLDER VIEW CHILDRENS: "+holderView.getChildren().size());
     	MainPlugger.setNode(holderView, node);
     }
 
@@ -135,9 +142,33 @@ public class MainViewController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		coverBrano = new Image(imageStream);
-		coverImageView.setImage(coverBrano);
+		Image coverBrano = new Image(imageStream);
+		setImagePlayer(coverBrano);
+
+		getImageView().setImage(getImagePlayer());
     }
+
+    public ImageView getImageView(){
+    	return this.coverImageView;
+    }
+
+    public Image getImagePlayer(){
+		return this.coverBrano;
+	}
+
+	public void setImagePlayer(Image coverBrano){
+		if(getImagePlayer()!=null){
+			removeImagePlayer();
+		}
+		this.coverBrano = coverBrano;
+	}
+
+	public void removeImagePlayer(){
+		getImagePlayer().cancel();
+		coverBrano = null;
+		getImageView().setImage(null);
+		System.gc();
+	}
 
     public void setCurrentSong(Brano brano){
     	this.currentBrano = brano;
@@ -148,14 +179,24 @@ public class MainViewController {
     	return currentBrano;
     }
 
+    public void refreshHomepage(){
+    	Context.getInstance().getClientThread().updateHomepage();
+    }
+
+    public MediaPlayer getMediaPlayer(){
+    	return this.mediaPlayer;
+    }
+
     public synchronized void setMediaPlayer(Brano brano){
-    	if(mediaPlayer != null){
+    	if(this.mediaPlayer != null){
     		mediaPlayer.stop();
     		mediaPlayer.dispose();
     	}
-    	File mediaFile = new File(brano.getPathFile());
-		musicFile = new Media(mediaFile.toURI().toString());
-		mediaPlayer = new MediaPlayer(musicFile);
+
+    	ArrayList<Path> paths = Context.getInstance().getMapBraniFileCoverDownloaded().get(brano);
+
+		this.musicFile = new Media(paths.get(0).toFile().toURI().toString());
+		this.mediaPlayer = new MediaPlayer(musicFile);
 
 		setCurrentSong(brano);
 		setDataBrano(brano);
@@ -171,8 +212,9 @@ public class MainViewController {
 		});
 
 		mediaPlayer.setOnEndOfMedia(() -> {
+			getMediaPlayer().dispose();
 			Context.getInstance().getPlaylist().skipTrack();
-            setMediaPlayer(Context.getInstance().getPlaylist().getCurrentSong());
+			Context.getInstance().getClientThread().selectBrano(Context.getInstance().getPlaylist().getCurrentSong());
         });
 
 		mediaPlayer.setAutoPlay(true);
@@ -252,54 +294,55 @@ public class MainViewController {
 		});
 	}
 
+    public void logout(){
+    	Context.getInstance().getClientThread().logout();
+    	Context.getInstance().getLoginStage().show();
+    }
+
 	public void formatTime(Duration elapsed, Duration duration) {
-		   int intElapsed = (int)Math.floor(elapsed.toSeconds());
-		   int elapsedHours = intElapsed / (60 * 60);
-		   if (elapsedHours > 0) {
-		       intElapsed -= elapsedHours * 60 * 60;
-		   }
-		   int elapsedMinutes = intElapsed / 60;
-		   int elapsedSeconds = intElapsed - elapsedHours * 60 * 60
-		                           - elapsedMinutes * 60;
+	   int intElapsed = (int)Math.floor(elapsed.toSeconds());
+	   int elapsedHours = intElapsed / (60 * 60);
+	   if (elapsedHours > 0) {
+	       intElapsed -= elapsedHours * 60 * 60;
+	   }
+	   int elapsedMinutes = intElapsed / 60;
+	   int elapsedSeconds = intElapsed - elapsedHours * 60 * 60
+	                           - elapsedMinutes * 60;
 
-		   if (duration.greaterThan(Duration.ZERO)) {
-		      int intDuration = (int)Math.floor(duration.toSeconds());
-		      int durationHours = intDuration / (60 * 60);
-		      if (durationHours > 0) {
-		         intDuration -= durationHours * 60 * 60;
-		      }
-		      int durationMinutes = intDuration / 60;
-		      int durationSeconds = intDuration - durationHours * 60 * 60 -
-		          durationMinutes * 60;
-		      if (durationHours > 0) {
-		    	  setPlayTimeLabel(String.format("%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds));
-		    	  setDurationLabel(String.format("%d:%02d:%02d", durationHours, durationMinutes, durationSeconds));
-		         /*return String.format("%d:%02d:%02d/%d:%02d:%02d",
-		            elapsedHours, elapsedMinutes, elapsedSeconds,
-		            durationHours, durationMinutes, durationSeconds);*/
-		      } else {
-		    	  setPlayTimeLabel(String.format("%02d:%02d", elapsedMinutes, elapsedSeconds));
-		    	  setDurationLabel(String.format("%02d:%02d", durationMinutes, durationSeconds));
-		          /*return String.format("%02d:%02d/%02d:%02d",
-		            elapsedMinutes, elapsedSeconds,durationMinutes,
-		                durationSeconds);*/
-		      }
-		      } else {
-		          if (elapsedHours > 0) {
-		        	  setPlayTimeLabel(String.format("%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds));
-		             /*return String.format("%d:%02d:%02d", elapsedHours,
-		                    elapsedMinutes, elapsedSeconds);*/
-		            } else {
-		            	setPlayTimeLabel(String.format("%02d:%02d", elapsedMinutes, elapsedSeconds));
-		                /*return String.format("%02d:%02d",elapsedMinutes,
-		                    elapsedSeconds);*/
-		            }
-		        }
-		    }
-
-    public ObservableList<Brano> getListaBrani() {
-	    return listaBrani;
-	}
+	   if (duration.greaterThan(Duration.ZERO)) {
+	      int intDuration = (int)Math.floor(duration.toSeconds());
+	      int durationHours = intDuration / (60 * 60);
+	      if (durationHours > 0) {
+	         intDuration -= durationHours * 60 * 60;
+	      }
+	      int durationMinutes = intDuration / 60;
+	      int durationSeconds = intDuration - durationHours * 60 * 60 -
+	          durationMinutes * 60;
+	      if (durationHours > 0) {
+	    	  setPlayTimeLabel(String.format("%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds));
+	    	  setDurationLabel(String.format("%d:%02d:%02d", durationHours, durationMinutes, durationSeconds));
+	         /*return String.format("%d:%02d:%02d/%d:%02d:%02d",
+	            elapsedHours, elapsedMinutes, elapsedSeconds,
+	            durationHours, durationMinutes, durationSeconds);*/
+	      } else {
+	    	  setPlayTimeLabel(String.format("%02d:%02d", elapsedMinutes, elapsedSeconds));
+	    	  setDurationLabel(String.format("%02d:%02d", durationMinutes, durationSeconds));
+	          /*return String.format("%02d:%02d/%02d:%02d",
+	            elapsedMinutes, elapsedSeconds,durationMinutes,
+	                durationSeconds);*/
+	      }
+	      } else {
+	          if (elapsedHours > 0) {
+	        	  setPlayTimeLabel(String.format("%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds));
+	             /*return String.format("%d:%02d:%02d", elapsedHours,
+	                    elapsedMinutes, elapsedSeconds);*/
+	            } else {
+	            	setPlayTimeLabel(String.format("%02d:%02d", elapsedMinutes, elapsedSeconds));
+	                /*return String.format("%02d:%02d",elapsedMinutes,
+	                    elapsedSeconds);*/
+	            }
+	        }
+	    }
 
     public String getTitoloLabel() {
 		return textTitoloProperty().get();

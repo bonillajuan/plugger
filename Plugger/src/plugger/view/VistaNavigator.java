@@ -21,6 +21,8 @@ public class VistaNavigator {
     /** The main application layout controller. */
     private static MainViewController mainViewController;
 
+    public static Node previousNode;
+
     /**
      * Stores the main controller for later use in navigation tasks.
      *
@@ -51,8 +53,8 @@ public class VistaNavigator {
         try {
         	FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(MainPlugger.class.getResource(fxml));
-			Node loaded = loader.load();
-        	mainViewController.setVista(loaded);
+			Node node = loader.load();
+        	mainViewController.setVista(node);
         } catch (Exception e) {
             e.printStackTrace();
         }

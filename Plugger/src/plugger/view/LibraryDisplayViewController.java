@@ -18,6 +18,7 @@ public class LibraryDisplayViewController {
 
 	@FXML
 	public void initialize(){
+		Context.getInstance().getClientThread().updateHomepage();
 		setLibraryTableView();
 		setLibraryDetailsView();
 	}

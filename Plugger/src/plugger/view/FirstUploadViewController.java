@@ -33,7 +33,7 @@ public class FirstUploadViewController {
 		            //boolean isAccepted = db.getFiles().get(0).toPath().toString().endsWith(".mp3");
 		            boolean isAccepted = FilenameUtils.getExtension(db.getFiles().get(0).getPath().toString()).equals("mp3");
 			            if (db.hasFiles() && isAccepted) {
-			            	node.setStyle("-fx-border-color: red;"
+			            	node.setStyle("-fx-border-color: 66ccff;"
 			                        + "-fx-border-width: 5;"
 			                        + "-fx-background-color: #C6C6C6;"
 			                        + "-fx-border-style: solid;");
@@ -43,6 +43,14 @@ public class FirstUploadViewController {
 			            }
 	        }
 	    });
+
+		node.setOnDragExited(new EventHandler<DragEvent>() {
+	        @Override
+	        public void handle(DragEvent event) {
+            	node.setStyle(null);
+	        }
+	    });
+
 	    // Dropping over surface
 		node.setOnDragDropped(new EventHandler<DragEvent>() {
 	        @Override
@@ -58,7 +66,7 @@ public class FirstUploadViewController {
 	                		Context.getInstance().addBranoFileToMap(brano, file);
 	                		System.out.println("MAP UPDATED - Brano: "+Context.getInstance().getMapFileBrano().getKey(file).toString());
 	            			System.out.println("MAP UPDATED - File: "+Context.getInstance().getMapFileBrano().get(brano).toPath());
-	                		Context.getInstance().addFileToListaBraniUpload(brano);
+	                		Context.getInstance().addBranoToListaBraniUpload(brano);
 	                		System.out.println("ADDING TO LIST FIRST BRANO: "+Context.getInstance().getListaBraniUpload().get(0).getTitolo());
 	                	}else{
 	                		System.out.println("FILE NOT VALID: "+file.toString());
@@ -82,7 +90,7 @@ public class FirstUploadViewController {
 			Context.getInstance().addBranoFileToMap(brano, file);
 			System.out.println("MAP UPDATED - Brano: "+Context.getInstance().getMapFileBrano().getKey(file).toString());
 			System.out.println("MAP UPDATED - File: "+Context.getInstance().getMapFileBrano().get(brano).toPath());
-			Context.getInstance().addFileToListaBraniUpload(brano);
+			Context.getInstance().addBranoToListaBraniUpload(brano);
 			showUploadView();
 		}
 	}

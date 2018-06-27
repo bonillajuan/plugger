@@ -1,8 +1,6 @@
 package plugger.view;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.jfoenix.controls.JFXTextField;
 
@@ -25,10 +23,8 @@ public class UploadDetailsViewController {
     public Brano selectedBrano = null;
 
     public String status;
-    public static final String SAVED = "saved";
-    public static final String NOT_SAVED = "not_saved";
-
-    public Map<Brano, String> statusBrani = new HashMap<>();
+    public static final String SAVED = "SENT";
+    public static final String NOT_SAVED = "NOT_SENT";
 
     @FXML
     public void initialize(){
@@ -36,9 +32,6 @@ public class UploadDetailsViewController {
     }
 
     public void setUploadDetailsBrano(Brano brano){
-    	if(!statusBrani.containsKey(brano)){
-    		statusBrani.put(brano, UploadDetailsViewController.NOT_SAVED);
-    	}
     	setSelectedBrano(brano);
     	setTitoloField(brano.getTitolo());
 		setArtistaField(brano.getArtista());
@@ -86,20 +79,25 @@ public class UploadDetailsViewController {
 	}
 
 	public void setStatus(Brano brano, String status){
-		statusBrani.replace(brano, status);
+		getSelectedBrano().setStatus(status);
 	}
 
 	public String getStatus(Brano brano){
-		return statusBrani.get(brano);
+		return brano.getStatus();
 	}
 
 	public boolean isSaved(Brano brano){
 		boolean isSaved = false;
-		if(statusBrani.get(brano).contentEquals((UploadDetailsViewController.SAVED))){
+		if(brano.getStatus().contentEquals((UploadDetailsViewController.SAVED))){
 			isSaved = true;
-		}else if(statusBrani.get(brano).contentEquals((UploadDetailsViewController.NOT_SAVED))){
+		}else if(brano.getStatus().contentEquals((UploadDetailsViewController.NOT_SAVED))){
 			isSaved = false;
 		}
 		return isSaved;
 	}
+
+	public void updateTableView(){
+		Context.getInstance().getUploadViewController().getTableView().refresh();
+	}
+
 }

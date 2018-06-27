@@ -1,13 +1,13 @@
 package plugger;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import plugger.model.Context;
 import plugger.view.VistaNavigator;
 import javafx.scene.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 
 public class MainPlugger extends Application {
@@ -16,26 +16,19 @@ public class MainPlugger extends Application {
 	public void start(Stage loginStage){
 		try {
 			loginStage.setTitle("Plugger");
+			loginStage.getIcons().add(new Image("plugger/view/immagini/icona.jpg"));
 			loginStage.setMinWidth(1000);
 			loginStage.setMinHeight(650);
 			loginStage.setScene(createScene(loadLoginPane()));
 			loginStage.show();
 			Context.getInstance().setLoginStage(loginStage);
+			Context.getInstance().setHostService(getHostServices());
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static void main(String[] args) {
-		try{
-			InetAddress localHost = InetAddress.getLocalHost();
-			String remoteHost = "plugger.zapto.org";
-			Runnable clientThread = new ClientThread(localHost,9090);
-			System.out.println("AVVIO CLIENT THREAD...");
-			new Thread(clientThread).start();
-		}catch(Throwable t){
-			t.printStackTrace();
-		}
 		System.out.println("AVVIO PIATTAFORMA...");
 		launch(args);
 	}
@@ -58,6 +51,12 @@ public class MainPlugger extends Application {
         //VistaNavigator.loadVista(VistaNavigator.LIBRARY_DISPLAY);
 		return loginVBox;
     }
+
+    /*@Override
+    public void stop(){
+    	System.out.println("STOPPING APPLICATION...");
+    	Context.getInstance().getClientThread().disconnectClient();
+    }*/
 
     /**
     * Creates the main application scene.

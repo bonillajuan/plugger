@@ -5,9 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -21,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -60,9 +59,9 @@ public class UploadViewController {
 	@FXML
 	public TableColumn<Brano, String> albumCol;
 	@FXML
-	public TableColumn<Brano, String> transferCol;
+	public TableColumn<Brano, Boolean> checkCol;
 	@FXML
-	public TableColumn<Brano, String> statusCol;
+	public TableColumn<Brano,String> statusCol;
 
 	public ImageView imageView = new ImageView();
 	public List<File> imageList = new ArrayList<File>();
@@ -72,23 +71,36 @@ public class UploadViewController {
 	public void initialize(){
 		showUploadDetailsView();
 		setUploadItems();
-		/*if(Context.getInstance().getUploadDetailsViewController().getSelectedBrano()==null){
-			uploadButton.setDisable(true);
-		}*/
 		setDragAndDropFile(uploadFileView);
 		setDragAndDropImage(uploadImageView);
+		if(Context.getInstance().getUploadDetailsViewController().getSelectedBrano()!=null){
+			setImage(Context.getInstance().getUploadDetailsViewController().getSelectedBrano());
+		}
 	}
 
 	public void uploadFile(){
 		Brano brano = Context.getInstance().getUploadDetailsViewController().getSelectedBrano();
-		File file = Context.getInstance().getMapFileBrano().get(brano);
-		Context.getInstance().getUploadDetailsViewController().setStatus(brano, UploadDetailsViewController.SAVED);
-		changeStatusUploadButton(brano);
-		System.out.println("BRANO SALVATO: "+brano.getPathFile());
-		Context.getInstance().getUploadDetailsViewController().updateDataBrano(brano, file);
-		System.out.println("BRANO DA INVIARE: "+brano);
-		Context.getInstance().getClientThread().sendFile(brano);
-		uploadTable.refresh();
+		if(brano.hasCover()){
+			File file = Context.getInstance().getMapFileBrano().get(brano);
+			System.out.println("FILE PRESO DA MAPPA CON CHIAVE "+brano.toString()+" - "+file.toString());
+			if(file!=null){
+				Context.getInstance().getUploadDetailsViewController().updateDataBrano(brano, file);
+				uploadTable.refresh();
+				Context.getInstance().getUploadDetailsViewController().setStatus(brano, UploadDetailsViewController.SAVED);
+				changeStatusUploadButton(brano);
+
+				System.out.println("BRANO SALVATO: "+brano.getPathFile());
+				System.out.println("BRANO DA INVIARE: "+brano);
+
+				Context.getInstance().getClientThread().uploadBrano(brano);
+			}
+		}else{
+			System.out.println("IL BRANO DEVE AVERE UNA COVER.");
+		}
+	}
+
+	public TableView<Brano> getTableView(){
+		return this.uploadTable;
 	}
 
 	public void setDragAndDropFile(Node node){
@@ -97,10 +109,9 @@ public class UploadViewController {
 	        @Override
 	        public void handle(DragEvent event) {
 	            Dragboard db = event.getDragboard();
-		            //boolean isAccepted = db.getFiles().get(0).toPath().toString().endsWith(".mp3");
 		            boolean isAccepted = FilenameUtils.getExtension(db.getFiles().get(0).getPath().toString()).equals("mp3");
 			            if (db.hasFiles() && isAccepted) {
-			            	node.setStyle("-fx-border-color: red;"
+			            	node.setStyle("-fx-border-color: 66ccff;"
 			                        + "-fx-border-width: 5;"
 			                        + "-fx-background-color: #C6C6C6;"
 			                        + "-fx-border-style: solid;");
@@ -110,6 +121,14 @@ public class UploadViewController {
 			            }
 	        }
 	    });
+
+		node.setOnDragExited(new EventHandler<DragEvent>() {
+	        @Override
+	        public void handle(DragEvent event) {
+            	node.setStyle(null);
+	        }
+	    });
+
 	    // Dropping over surface
 		node.setOnDragDropped(new EventHandler<DragEvent>() {
 	        @Override
@@ -125,7 +144,7 @@ public class UploadViewController {
 	                		Context.getInstance().addBranoFileToMap(brano, file);
 	                		System.out.println("MAP UPDATED - Brano: "+Context.getInstance().getMapFileBrano().getKey(file).toString());
 	            			System.out.println("MAP UPDATED - File: "+Context.getInstance().getMapFileBrano().get(brano).toPath());
-	                		Context.getInstance().addFileToListaBraniUpload(brano);
+	                		Context.getInstance().addBranoToListaBraniUpload(brano);
 	                	}else{
 	                		System.out.println("FILE NOT VALID: "+file.toString());
 	                	}
@@ -143,12 +162,10 @@ public class UploadViewController {
 	        @Override
 	        public void handle(DragEvent event) {
 	            Dragboard db = event.getDragboard();
-	            	/*boolean isAccepted = db.getFiles().get(0).getName().toLowerCase().endsWith(".png")
-            						|| db.getFiles().get(0).getName().toLowerCase().endsWith(".jpg");*/
 	            	boolean isAccepted = FilenameUtils.getExtension(db.getFiles().get(0).getPath().toString()).toLowerCase().equals("png")
 	            					|| FilenameUtils.getExtension(db.getFiles().get(0).getPath().toString()).toLowerCase().equals("jpg");
 			            if (db.hasFiles() && isAccepted) {
-			            	node.setStyle("-fx-border-color: red;"
+			            	node.setStyle("-fx-border-color: 66ccff;"
 			                        + "-fx-border-width: 5;"
 			                        + "-fx-background-color: #C6C6C6;"
 			                        + "-fx-border-style: solid;");
@@ -158,6 +175,14 @@ public class UploadViewController {
 			            }
 	        }
 	    });
+
+		node.setOnDragExited(new EventHandler<DragEvent>() {
+	        @Override
+	        public void handle(DragEvent event) {
+            	node.setStyle(null);
+	        }
+	    });
+
 	    // Dropping over surface;
 		node.setOnDragDropped(new EventHandler<DragEvent>() {
 	        @Override
@@ -173,7 +198,7 @@ public class UploadViewController {
             				String pathCover = file.getPath().toString();
             				System.out.println("PATH COVER: "+pathCover);
 	                		Context.getInstance().getUploadDetailsViewController().getSelectedBrano().setPathCover(pathCover);
-	                		setImage(pathCover);
+	                		setImage(Context.getInstance().getUploadDetailsViewController().getSelectedBrano());
 	                	}else{
 	                		System.out.println("FILE NOT VALID: "+file.getPath().toString());
 	                	}
@@ -195,15 +220,21 @@ public class UploadViewController {
 				Context.getInstance().addBranoFileToMap(brano, file);
 				System.out.println("MAP UPDATED - Brano: "+Context.getInstance().getMapFileBrano().getKey(file).toString());
     			System.out.println("MAP UPDATED - File: "+Context.getInstance().getMapFileBrano().get(brano).toPath());
-				Context.getInstance().addFileToListaBraniUpload(brano);
+				Context.getInstance().addBranoToListaBraniUpload(brano);
 			}
 	}
 
 	public void setUploadItems(){
+
+		;
 		    // Add observable list data to the table
 			titoloCol.setCellValueFactory(new PropertyValueFactory<Brano, String>("titolo"));
 			artistaCol.setCellValueFactory(new PropertyValueFactory<Brano, String>("artista"));
 			albumCol.setCellValueFactory(new PropertyValueFactory<Brano, String>("album"));
+			checkCol.setCellValueFactory(new PropertyValueFactory<Brano,Boolean>("hasPathCover"));
+			statusCol.setCellValueFactory(new PropertyValueFactory<Brano, String>("status"));
+
+			checkCol.setCellFactory(column -> new CheckBoxTableCell<Brano, Boolean>());
 
 			uploadTable.setItems(Context.getInstance().getListaBraniUpload());
 
@@ -211,10 +242,10 @@ public class UploadViewController {
 	            TableRow<Brano> row = new TableRow<>();
 	            row.setOnMouseClicked(event -> {
 	                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
-	                    Brano brano = row.getItem();
+	                    Brano brano = uploadTable.getSelectionModel().getSelectedItem();
 	                    System.out.println("BRANO SELEZIONATO: "+brano.getPathFile());
 	                    Context.getInstance().getUploadDetailsViewController().setUploadDetailsBrano(brano);
-	                    setImage(brano.getPathCover());
+	                    setImage(brano);
 	                    changeStatusUploadButton(brano);
 	                }
 	            });
@@ -231,8 +262,10 @@ public class UploadViewController {
         }
 	}
 
-	public void setImage(String pathCover){
-		System.out.println("SETTING IMAGE FROM FILE: "+pathCover);
+	public void setImage(Brano brano){
+		System.out.println("BOOLEAN PATH COVER BRANO: "+brano.hasCover());
+		String pathCover = brano.getPathCover();
+		System.out.println("SETTING IMAGE FROM BRANO: "+pathCover);
 		InputStream imageStream = null;
 		if(pathCover!=null){
 			System.out.println("PATH COVER NOT NULL.");
@@ -280,7 +313,7 @@ public class UploadViewController {
 			String pathCover = selectedFile.getPath().toString();
 			System.out.println("PATH COVER: "+pathCover);
 			Context.getInstance().getUploadDetailsViewController().getSelectedBrano().setPathCover(pathCover);
-			setImage(Context.getInstance().getUploadDetailsViewController().getSelectedBrano().getPathCover());
+			setImage(Context.getInstance().getUploadDetailsViewController().getSelectedBrano());
 	    }
 	}
 

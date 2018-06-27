@@ -14,18 +14,13 @@
 	<classpathentry kind="lib" path="lib/fontawesomefx-materialicons-2.2.0-5.jar"/>
 	<classpathentry kind="lib" path="lib/fontawesomefx-octicons-4.3.0-5.jar"/>
 	<classpathentry kind="lib" path="lib/fontawesomefx-weathericons-2.0.10-5.jar"/>
-	<classpathentry kind="lib" path="lib/jaudiotagger-2.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/jave-1.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/jfoenix.jar"/>
-	<classpathentry kind="lib" path="lib/jl-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/mp3spi1.9.5.jar"/>
-	<classpathentry kind="lib" path="lib/tritonus_share.jar"/>
-	<classpathentry kind="lib" path="lib/xuggle-xuggler-5.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
-	<classpathentry kind="lib" path="lib/plugger-brano-utilities.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.1-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="lib/jaudiotagger-2.2.6-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/plugger-brano-utilities.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

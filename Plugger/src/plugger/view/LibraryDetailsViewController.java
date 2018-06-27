@@ -2,6 +2,9 @@ package plugger.view;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
+
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -30,16 +33,42 @@ public class LibraryDetailsViewController {
     	setTitoloLabel(brano.getTitolo());
 		setArtistaLabel(brano.getArtista());
 		setAlbumLabel(brano.getAlbum());
+
+		ArrayList<Path> paths = Context.getInstance().getMapBraniFileCoverDownloaded().get(brano);
+
 		InputStream imageStream = null;
 		try {
-			imageStream = new FileInputStream(brano.getPathCover());
+			imageStream = new FileInputStream(paths.get(1).toFile());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		coverBrano = new Image(imageStream);
-		coverImageView.setImage(coverBrano);
+
+		Image coverBrano = new Image(imageStream);
+		setImageDetailsBrano(coverBrano);
+
+		getImageView().setImage(getImageDetailsBrano());
     }
+
+	public ImageView getImageView(){
+		return this.coverImageView;
+	}
+
+	public Image getImageDetailsBrano(){
+		return this.coverBrano;
+	}
+
+	public void setImageDetailsBrano(Image coverBrano){
+		if(getImageDetailsBrano()!=null)getImageDetailsBrano().cancel();
+		this.coverBrano = coverBrano;
+	}
+
+	public void removeImagePlayer(){
+		getImageDetailsBrano().cancel();
+		coverBrano = null;
+		getImageView().setImage(null);
+		System.gc();
+	}
 
 	public String getTitoloLabel() {
 		return textTitoloProperty().get();

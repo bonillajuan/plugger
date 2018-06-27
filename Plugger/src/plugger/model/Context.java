@@ -1,17 +1,16 @@
 package plugger.model;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.apache.commons.collections4.bidimap.TreeBidiMap;
 
+import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.Stage;
@@ -22,7 +21,6 @@ import plugger.view.MainViewController;
 import plugger.view.UploadDetailsViewController;
 import plugger.view.UploadViewController;
 import pluggerserver.Brano;
-import pluggerserver.UtilityBrano;
 
 public class Context {
 
@@ -32,6 +30,16 @@ public class Context {
         return instance;
     }
 
+    public HostServices hostServices;
+
+    public HostServices getHostServices(){
+    	return this.hostServices;
+    }
+
+    public void setHostService(HostServices hostServices){
+    	this.hostServices = hostServices;
+    }
+
     public Stage loginStage;
 
     public void setLoginStage(Stage loginStage){
@@ -39,7 +47,17 @@ public class Context {
     }
 
     public Stage getLoginStage(){
-    	return loginStage;
+    	return this.loginStage;
+    }
+
+    public Stage mainStage;
+
+    public void setMainStage(Stage mainStage){
+    	this.mainStage = mainStage;
+    }
+
+    public Stage getMainStage(){
+    	return this.mainStage;
     }
 
     public MainViewController mainViewController;
@@ -114,8 +132,9 @@ public class Context {
 
     public ObservableList<Brano> listaBraniUpload = FXCollections.observableArrayList();
 
-    public void addFileToListaBraniUpload(Brano brano){
-		System.out.println("FILE ADDED: "+brano.getPathFile());
+    public void addBranoToListaBraniUpload(Brano brano){
+		System.out.println("FILE ADDED TO LISTA BRANI UPLOAD: "+brano.getPathFile());
+		brano.setStatus(UploadDetailsViewController.NOT_SAVED);
 		getListaBraniUpload().add(brano);
 	}
 
@@ -123,16 +142,58 @@ public class Context {
     	return this.listaBraniUpload;
     }
 
-    public void addBranoFileToMap(Brano brano, File file){
-    	System.out.println("BRANO ADDED: "+brano.toString());
-		System.out.println("FILE ADDED: "+file.toPath());
-		getMapFileBrano().put(brano, file);
-	}
-
     public BidiMap<Brano, File> mapFileBrano = new DualHashBidiMap<Brano, File>();
 
     public BidiMap<Brano, File> getMapFileBrano(){
     	return this.mapFileBrano;
+    }
+
+    public void addBranoFileToMap(Brano brano, File file){
+    	System.out.println("BRANO ADDED TO BRANO FILE MAP: "+brano.toString());
+		System.out.println("FILE ADDED TO BRANO FILE MAP: "+file.toPath());
+		getMapFileBrano().put(brano, file);
+	}
+
+    public List<Brano> listaBraniRicevuti;
+
+    public void setListaBraniRicevuti(){
+    	listaBraniRicevuti = new ArrayList<Brano>();
+    }
+
+    public List<Brano> getListaBraniRicevuti(){
+    	return this.listaBraniRicevuti;
+    }
+
+    public void addBranoToListaBraniRicevuti(Brano brano){
+    	System.out.println("BRANO RICEVUTO ADDED TO LIST: "+brano.toString());
+		getListaBraniRicevuti().add(brano);
+    }
+
+    public void addBraniRicevutiToListaBrani(){
+    	for(Brano brano : getListaBraniRicevuti()){
+    		getListaBraniClient().add(brano);
+    	}
+    }
+
+    public ObservableList<Brano> listaBraniClient = FXCollections.observableArrayList();
+
+    public ObservableList<Brano> getListaBraniClient(){
+    	return this.listaBraniClient;
+    }
+
+    public void addToListaBraniClient(Brano brano){
+    	System.out.println("BRANO ADDED TO LISTA BRANI CLIENT: "+brano.toString());
+    	getListaBraniClient().add(brano);
+    }
+
+    public Map<Brano, ArrayList<Path>> mapBraniFileCoverDownloaded = new HashMap<>();
+
+    public Map<Brano, ArrayList<Path>> getMapBraniFileCoverDownloaded(){
+    	return this.mapBraniFileCoverDownloaded;
+    }
+
+    public void addToMapBraniFileCoverDownloaded(Brano brano, ArrayList<Path> paths){
+    	getMapBraniFileCoverDownloaded().put(brano, paths);
     }
 
 }

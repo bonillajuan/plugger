@@ -20,12 +20,12 @@ public class LibraryTableViewController {
 	public TableColumn<Brano, String> artistaCol;
 	@FXML
 	public TableColumn<Brano, String> albumCol;
-	@FXML
+	/*@FXML
 	public TableColumn<Brano, String> pathFileCol;
 	@FXML
-	public TableColumn<Brano, String> pathCoverCol;
+	public TableColumn<Brano, String> pathCoverCol;*/
 	@FXML
-	public TableColumn<Brano, String> durationCol;
+	public TableColumn<Brano, String> durataCol;
 
 	@FXML
 	public void initialize(){
@@ -37,12 +37,12 @@ public class LibraryTableViewController {
 		titoloCol.setCellValueFactory(new PropertyValueFactory<>("titolo"));
 		artistaCol.setCellValueFactory(new PropertyValueFactory<>("artista"));
 		albumCol.setCellValueFactory(new PropertyValueFactory<>("album"));
-		durationCol.setCellValueFactory(new PropertyValueFactory<>("duration"));
-		pathFileCol.setCellValueFactory(new PropertyValueFactory<>("pathFile"));
-		pathCoverCol.setCellValueFactory(new PropertyValueFactory<>("pathCover"));
+		durataCol.setCellValueFactory(new PropertyValueFactory<>("durata"));
+		//pathFileCol.setCellValueFactory(new PropertyValueFactory<>("pathFile"));
+		//pathCoverCol.setCellValueFactory(new PropertyValueFactory<>("pathCover"));
 
 		// The predicate here displays all files
-        FilteredList<Brano> filteredFiles = new FilteredList<>(Context.getInstance().getMainViewController().getListaBrani(), mp3 -> true);
+        FilteredList<Brano> filteredFiles = new FilteredList<>(Context.getInstance().getListaBraniClient(), mp3 -> true);
 
         Context.getInstance().getMainViewController().getSearchField().textProperty().addListener((observable, oldValue, newValue) -> {
             filteredFiles.setPredicate(brano -> {
@@ -79,7 +79,7 @@ public class LibraryTableViewController {
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
                     Brano brano = row.getItem();
-                    Context.getInstance().getMainViewController().setMediaPlayer(brano);
+                    Context.getInstance().getClientThread().selectBrano(brano);
                 }
             });
             return row ;
